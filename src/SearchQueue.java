@@ -1,14 +1,8 @@
 import java.util.ArrayList;
+import java.util.Collection;
 
-/**
- * Created by mostafa on 10/11/17.
- */
 public abstract class SearchQueue {
-    private ArrayList<Operator> queue;
-    SearchQueue() {
-        this.queue = new ArrayList<>();
-    }
-
+    private Collection<Operator> queue;
     abstract void enqueue(State state);
     abstract State dequeue(State state);
 }
