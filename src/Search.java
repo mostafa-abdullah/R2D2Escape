@@ -1,8 +1,5 @@
 import java.util.*;
 
-/**
- * Created by mostafa on 10/11/17.
- */
 public class Search {
     private final int MAX_GRID_LEN = 5;
     private final int MIN_GRID_LEN = 3;
