@@ -1,21 +1,24 @@
-public class Operator {
-    static private final int normalMoveCost = 1;
-    static private final int rockPushCost = 2;
+package PrisonSearch;
 
+import GenericSearch.Operator;
+import GenericSearch.State;
+
+public class PrisonOperator extends Operator{
     private  int vertical, horizontal;
-    Operator(int ver, int hor) {
+    PrisonOperator(int ver, int hor, PrisonCostEvaluator costFunction) {
+        this.costFunction = costFunction;
         this.vertical = ver;
         this.horizontal = hor;
     }
 
-    boolean isInsideGrid(int x, int y, int gridLen, int gridWid) {
+    private boolean isInsideGrid(int x, int y, int gridLen, int gridWid) {
         return x >= 0 && x < gridLen && y >= 0 && y < gridWid;
     }
 
-    State applyOperator(State currentState) {
-        State newState = currentState.cloneState();
-
-        Cell[][] grid = newState.grid;
+    public PrisonState applyOperator(State currentState) {
+        PrisonState currentPrisonState = (PrisonState) currentState;
+        PrisonState newPrisonState = currentPrisonState.cloneState();
+        Cell[][] grid = newPrisonState.grid;
 
         int myX = -1;
         int myY = -1;
@@ -34,8 +37,9 @@ public class Operator {
             }
 
         int newX = myX + vertical, newY = myY + horizontal;
-
-        newState.cost += normalMoveCost;
+        int normalMoveCost = costFunction.getCost(MoveType.NORMAL_MOVE);
+        int rockPushCost = costFunction.getCost(MoveType.ROCK_PUSH);
+        newPrisonState.incCost(normalMoveCost);
         if(isInsideGrid(newX, newY, N, M)) {
             Cell myCell = grid[myX][myY], newCell = grid[newX][newY];
             if(newCell == Cell.EMPTY || newCell == Cell.EMPTY_PRESSURE_PAD) {
@@ -44,8 +48,8 @@ public class Operator {
             }
 
             else if(newCell == Cell.ROCK || newCell == Cell.PRESSURE_PAD_ROCK) {
-                newState.cost += rockPushCost - normalMoveCost;
-                int afterRockX = newX + horizontal, afterRockY = newY + vertical;
+                newPrisonState.incCost(rockPushCost - normalMoveCost);
+                int afterRockX = newX + vertical, afterRockY = newY + horizontal;
                 if(isInsideGrid(afterRockX, afterRockY, N, M)) {
                     Cell afterRockCell = grid[afterRockX][afterRockY];
                     if(afterRockCell == Cell.EMPTY || afterRockCell == Cell.EMPTY_PRESSURE_PAD) {
@@ -62,6 +66,6 @@ public class Operator {
             // do nothing if obstacle
         }
 
-        return newState;
+        return newPrisonState;
     }
 }

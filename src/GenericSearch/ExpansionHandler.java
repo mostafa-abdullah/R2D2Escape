@@ -1,7 +1,11 @@
+package GenericSearch;
+
+import PrisonSearch.PrisonState;
+
 import java.util.ArrayList;
 
 public class ExpansionHandler {
-    void expand(SearchQueue queue, State currentState, ArrayList<Operator> operators) {
+    static void expand(SearchQueue queue, State currentState, ArrayList<Operator> operators) {
         for(Operator op: operators) {
             State nxtState = op.applyOperator(currentState);
             if(nxtState != null)

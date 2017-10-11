@@ -1,3 +1,5 @@
+package PrisonSearch;
+
 public enum Cell {
     ROCK,
     EMPTY_PRESSURE_PAD,
