@@ -90,16 +90,24 @@ public class PrisonSearch {
         operators.add(new PrisonOperator(0, -1, costFunction));
 
         Search search = new Search(operators, initialState, goalTester, queue, visualize, new PrintWriter(System.out));
-        return search.startSearch();
+        try {
+            return search.startSearch();
+        } catch (NoSolutionException e) {
+            return null;
+        }
     }
 
     public static void main(String[] args) {
         PrisonSearch ps = new PrisonSearch();
         SearchResult result = ps.search(SearchType.AS1, false);
-        for(State s: result.getPath())
-            System.out.println(s);
+        if(result == null)
+            System.out.println("NO SOLUTION");
+        else {
+            for (State s : result.getPath())
+                System.out.println(s);
 
-        System.out.printf("Total cost: %d\n\n", result.getCost());
-        System.out.printf("Expanded nodes: %d\n\n", result.getExpandedNodes());
+            System.out.printf("Total cost: %d\n\n", result.getCost());
+            System.out.printf("Expanded nodes: %d\n\n", result.getExpandedNodes());
+        }
     }
 }

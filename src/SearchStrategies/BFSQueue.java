@@ -1,5 +1,6 @@
 package SearchStrategies;
 
+import GenericSearch.NoSolutionException;
 import GenericSearch.SearchQueue;
 import GenericSearch.State;
 
@@ -20,7 +21,9 @@ public class BFSQueue extends SearchQueue{
     }
 
     @Override
-    protected State dequeue() {
+    protected State dequeue() throws NoSolutionException {
+        if(this.queue.size() == 0)
+            throw new NoSolutionException();
         Queue<State> q = (LinkedList<State>) this.queue;
         return q.remove();
     }

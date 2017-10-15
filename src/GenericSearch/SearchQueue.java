@@ -17,7 +17,7 @@ public abstract class SearchQueue {
     }
 
     protected abstract void enqueue(State state);
-    protected abstract State dequeue();
+    protected abstract State dequeue() throws NoSolutionException;
 
     public void incExpanded() {
         this.expanded++;

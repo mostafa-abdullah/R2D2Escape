@@ -1,5 +1,6 @@
 package SearchStrategies;
 
+import GenericSearch.NoSolutionException;
 import GenericSearch.SearchQueue;
 import GenericSearch.State;
 
@@ -29,7 +30,9 @@ public class UniformCostQueue extends SearchQueue{
     }
 
     @Override
-    protected State dequeue() {
+    protected State dequeue() throws NoSolutionException {
+        if(this.queue.size() == 0)
+            throw new NoSolutionException();
         PriorityQueue<State> q = (PriorityQueue<State>) this.queue;
         State nxt = q.remove();
         if(this.visitedStates.ceiling(nxt).getCost() == nxt.getCost())

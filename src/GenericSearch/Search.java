@@ -22,7 +22,7 @@ public class Search {
         this.printer = printer;
     }
 
-    public SearchResult startSearch() {
+    public SearchResult startSearch() throws NoSolutionException {
         this.queue.enqueue(initialState);
         while(true) {
             State curState = this.queue.dequeue();
