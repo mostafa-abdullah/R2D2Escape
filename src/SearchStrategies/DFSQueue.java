@@ -5,10 +5,11 @@ import GenericSearch.State;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Stack;
 
-public class BFSQueue extends SearchQueue{
-    public BFSQueue() {
-        super(new LinkedList<>());
+public class DFSQueue extends SearchQueue{
+    public DFSQueue() {
+        super(new Stack<>());
     }
 
     @Override
@@ -21,7 +22,7 @@ public class BFSQueue extends SearchQueue{
 
     @Override
     protected State dequeue() {
-        Queue<State> q = (LinkedList<State>) this.queue;
-        return q.remove();
+        Stack<State> q = (Stack<State>) this.queue;
+        return q.pop();
     }
 }

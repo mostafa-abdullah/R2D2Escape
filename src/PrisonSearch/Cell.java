@@ -11,7 +11,7 @@ public enum Cell {
     ME;
 
     boolean isValidEnd() {
-        return this == PRESSURE_PAD_ROCK || this == EMPTY || this == TELEPORT;
+        return this == PRESSURE_PAD_ROCK || this == EMPTY || this == TELEPORT || this == OBSTACLE;
     }
 
     @Override

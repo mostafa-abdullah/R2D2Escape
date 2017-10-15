@@ -17,7 +17,7 @@ public class PrisonOperator extends Operator{
 
     public PrisonState applyOperator(State currentState) {
         PrisonState currentPrisonState = (PrisonState) currentState;
-        PrisonState newPrisonState = currentPrisonState.cloneState();
+        PrisonState newPrisonState = currentPrisonState.nextState();
         Cell[][] grid = newPrisonState.grid;
 
         int myX = -1;
@@ -62,9 +62,14 @@ public class PrisonOperator extends Operator{
             else if(newCell == Cell.TELEPORT && canEnterTeleport) {
                 grid[myX][myY] = myCell == Cell.ME ? Cell.EMPTY : Cell.EMPTY_PRESSURE_PAD;
             }
+            else {
+                // do nothing if obstacle
+                return null;
+            }
 
-            // do nothing if obstacle
         }
+        else
+            return null;
 
         return newPrisonState;
     }

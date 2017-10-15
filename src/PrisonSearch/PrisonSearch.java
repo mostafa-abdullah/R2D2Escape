@@ -1,10 +1,9 @@
 package PrisonSearch;
 
-import GenericSearch.Operator;
-import GenericSearch.Search;
-import GenericSearch.SearchQueue;
-import GenericSearch.State;
-import SearchStrategies.BFSQueue;
+import GenericSearch.*;
+import PrisonSearch.AStarHeuristics.FarthestRockHeuristic;
+import PrisonSearch.AStarHeuristics.UnmatchedRocksHeuristic;
+import SearchStrategies.*;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -44,37 +43,63 @@ public class PrisonSearch {
                 grid[i][j] = allCells.get(i * width + j);
 
         grid = new Cell[][]{
-            {Cell.EMPTY, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE},
-            {Cell.ME, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE},
-            {Cell.EMPTY, Cell.ROCK, Cell.ROCK, Cell.OBSTACLE},
-            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT},
+            {Cell.EMPTY, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY, Cell.EMPTY},
+            {Cell.ME, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.ROCK, Cell.ROCK, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
         };
 
         grid = new Cell[][]{
-                {Cell.ME, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.ME, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT},
+                {Cell.EMPTY, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+                {Cell.ME, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY},
+                {Cell.EMPTY, Cell.ROCK, Cell.ROCK, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
+                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
         };
 
         return grid;
     }
 
-    void search(Search problem, int searchType, boolean visualize) {
-        SearchQueue q = new BFSQueue();
-        PrisonCostEvaluator ce = new PrisonCostEvaluator();
-        PrisonGoalTester gt = new PrisonGoalTester();
-        ArrayList<Operator> ops = new ArrayList<>();
-        ops.add(new PrisonOperator(1, 0, ce));
-        ops.add(new PrisonOperator(-1, 0, ce));
-        ops.add(new PrisonOperator(0, 1, ce));
-        ops.add(new PrisonOperator(0, -1, ce));
-        PrisonState ps = new PrisonState(genGrid(), 0, null);
-        Search search = new Search(ops, ps, gt, q, visualize, new PrintWriter(System.out));
-        ArrayList<State> path = search.startSearch();
-        System.out.println(path);
+    SearchResult search(SearchType searchType, boolean visualize) {
+        PrisonState initialState = new PrisonState(genGrid(), 0, 0, null);
+        PrisonCostEvaluator costFunction = new PrisonCostEvaluator();
+        PrisonGoalTester goalTester = new PrisonGoalTester();
+
+        SearchQueue queue;
+
+        switch (searchType) {
+            case BF: queue = new BFSQueue(); break;
+            case DF: queue = new DFSQueue(); break;
+            case ID: queue = new IterativeDeepeningQueue(initialState); break;
+            case UC: queue = new UniformCostQueue(); break;
+            case AS1: queue = new AStarQueue(new FarthestRockHeuristic()); break;
+            case AS2: queue = new AStarQueue(new UnmatchedRocksHeuristic()); break;
+            default: queue = new BFSQueue();
+        }
+
+        ArrayList<Operator> operators = new ArrayList<>();
+        operators.add(new PrisonOperator(1, 0, costFunction));
+        operators.add(new PrisonOperator(-1, 0, costFunction));
+        operators.add(new PrisonOperator(0, 1, costFunction));
+        operators.add(new PrisonOperator(0, -1, costFunction));
+
+        Search search = new Search(operators, initialState, goalTester, queue, visualize, new PrintWriter(System.out));
+        return search.startSearch();
     }
 
     public static void main(String[] args) {
-        PrisonSearch pr = new PrisonSearch();
-        pr.search(null, 0, false);
+        PrisonSearch ps = new PrisonSearch();
+        SearchResult result = ps.search(SearchType.AS1, false);
+        for(State s: result.getPath())
+            System.out.println(s);
+
+        System.out.printf("Total cost: %d\n\n", result.getCost());
+        System.out.printf("Expanded nodes: %d\n\n", result.getExpandedNodes());
     }
 }
