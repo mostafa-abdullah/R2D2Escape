@@ -32,10 +32,4 @@ public class IterativeDeepeningQueue extends SearchQueue{
         Stack<State> q = (Stack<State>) this.queue;
         return q.pop();
     }
-
-    public void reset(State initialState) {
-        this.queue.clear();
-        this.enqueue(initialState);
-    }
-
 }

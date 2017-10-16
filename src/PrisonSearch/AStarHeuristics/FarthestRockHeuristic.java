@@ -6,9 +6,18 @@ import PrisonSearch.Cell;
 import PrisonSearch.PrisonState;
 
 public class FarthestRockHeuristic extends StateHeuristic{
-    private final int INFINITY = (int) 1e9;
+    public FarthestRockHeuristic(boolean isGreedy) {
+        super(isGreedy);
+    }
+
+    public FarthestRockHeuristic() {
+        super(false);
+    }
+
     @Override
     public int calculate(State s) {
+        final int INFINITY = (int) 1e9;
+
         PrisonState state = (PrisonState) s;
         int myX = -1, myY = -1;
         Cell[][] grid = state.getGrid();
@@ -31,6 +40,6 @@ public class FarthestRockHeuristic extends StateHeuristic{
                     max = Math.max(max, Math.abs(myX - i) + Math.abs(myY - j));
                 }
 
-        return s.getCost() + max;
+        return this.isGreedy ? max : s.getCost() + max;
     }
 }

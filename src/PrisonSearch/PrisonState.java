@@ -27,7 +27,7 @@ public class PrisonState extends State {
                 result.append(cell);
             result.append('\n');
         }
-        result.append(cost + "\n");
+        result.append(cost).append("\n");
         return result.toString();
     }
 

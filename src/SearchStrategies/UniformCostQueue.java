@@ -9,12 +9,7 @@ import java.util.PriorityQueue;
 
 public class UniformCostQueue extends SearchQueue{
     public UniformCostQueue() {
-        super(new PriorityQueue<>(new Comparator<State>() {
-            @Override
-            public int compare(State s1, State s2) {
-                return s1.getCost() - s2.getCost();
-            }
-        }));
+        super(new PriorityQueue<>((s1, s2) -> s1.getCost() - s2.getCost()));
     }
 
     @Override

@@ -1,8 +1,5 @@
 package GenericSearch;
 
-/**
- * Created by mostafa on 10/11/17.
- */
 public abstract class State implements Comparable<State>{
     protected int cost;
     protected State parent;

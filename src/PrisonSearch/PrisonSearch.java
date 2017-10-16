@@ -11,20 +11,20 @@ import java.util.Collections;
 import java.util.Random;
 
 public class PrisonSearch {
-    private final int MAX_GRID_LEN = 5;
+    private final int MAX_GRID_LEN = 6;
     private final int MIN_GRID_LEN = 3;
-    private final int MAX_GRID_WIDTH = 5;
+    private final int MAX_GRID_WIDTH = 6;
     private final int MIN_GRID_WIDTH = 3;
 
-    Cell[][] genGrid() {
+    private Cell[][] genGrid() {
         Random rand = new Random();
         int len = rand.nextInt(MAX_GRID_LEN - MIN_GRID_LEN + 1) + MIN_GRID_LEN;
         int width = rand.nextInt(MAX_GRID_WIDTH - MIN_GRID_WIDTH + 1) + MIN_GRID_LEN;
 
         Cell[][] grid = new Cell[len][width];
 
-        int rocks = rand.nextInt((len * width - 2) / 2 + 1);
-        int obstacles = rand.nextInt(len * width - 2 - rocks * 2 + 1);
+        int rocks = rand.nextInt((len * width - 2) / 4 + 1);
+        int obstacles = rand.nextInt((len * width - 2 - rocks * 2) / 4 + 1);
         ArrayList<Cell> allCells = new ArrayList<>();
         for (int i = 0; i < rocks; i++) {
             allCells.add(Cell.ROCK);
@@ -42,32 +42,12 @@ public class PrisonSearch {
             for (int j = 0; j < width; j++)
                 grid[i][j] = allCells.get(i * width + j);
 
-        grid = new Cell[][]{
-            {Cell.EMPTY, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY, Cell.EMPTY},
-            {Cell.ME, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.ROCK, Cell.ROCK, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-            {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-        };
-
-        grid = new Cell[][]{
-                {Cell.EMPTY, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.ME, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.ROCK, Cell.ROCK, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-        };
-
         return grid;
     }
 
-    SearchResult search(SearchType searchType, boolean visualize) {
+    private SearchResult search(SearchType searchType, boolean visualize) {
         PrisonState initialState = new PrisonState(genGrid(), 0, 0, null);
+        System.out.println(initialState);
         PrisonCostEvaluator costFunction = new PrisonCostEvaluator();
         PrisonGoalTester goalTester = new PrisonGoalTester();
 
@@ -78,8 +58,10 @@ public class PrisonSearch {
             case DF: queue = new DFSQueue(); break;
             case ID: queue = new IterativeDeepeningQueue(initialState); break;
             case UC: queue = new UniformCostQueue(); break;
-            case AS1: queue = new AStarQueue(new FarthestRockHeuristic()); break;
-            case AS2: queue = new AStarQueue(new UnmatchedRocksHeuristic()); break;
+            case GR1: queue = new AStarGreedyQueue(new FarthestRockHeuristic(true)); break;
+            case GR2: queue = new AStarGreedyQueue(new UnmatchedRocksHeuristic(true)); break;
+            case AS1: queue = new AStarGreedyQueue(new FarthestRockHeuristic()); break;
+            case AS2: queue = new AStarGreedyQueue(new UnmatchedRocksHeuristic()); break;
             default: queue = new BFSQueue();
         }
 
@@ -99,7 +81,7 @@ public class PrisonSearch {
 
     public static void main(String[] args) {
         PrisonSearch ps = new PrisonSearch();
-        SearchResult result = ps.search(SearchType.AS1, false);
+        SearchResult result = ps.search(SearchType.UC, false);
         if(result == null)
             System.out.println("NO SOLUTION");
         else {

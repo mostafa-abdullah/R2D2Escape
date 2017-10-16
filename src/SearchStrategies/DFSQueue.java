@@ -4,8 +4,6 @@ import GenericSearch.NoSolutionException;
 import GenericSearch.SearchQueue;
 import GenericSearch.State;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Stack;
 
 public class DFSQueue extends SearchQueue{
