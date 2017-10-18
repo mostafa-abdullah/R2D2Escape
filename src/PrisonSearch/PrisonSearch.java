@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.Scanner;
 
 public class PrisonSearch {
     private final int MAX_GRID_LEN = 6;
@@ -16,6 +17,7 @@ public class PrisonSearch {
     private final int MAX_GRID_WIDTH = 6;
     private final int MIN_GRID_WIDTH = 3;
 
+    static PrintWriter printer = new PrintWriter(System.out);
     /**
      * Generates a random initial grid to be used in the search problem
      * @return The randomly created grid
@@ -46,18 +48,6 @@ public class PrisonSearch {
             for (int j = 0; j < width; j++)
                 grid[i][j] = allCells.get(i * width + j);
 
-        grid = new Cell[][]{
-                {Cell.EMPTY, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY_PRESSURE_PAD, Cell.EMPTY, Cell.EMPTY},
-                {Cell.ME, Cell.OBSTACLE, Cell.EMPTY_PRESSURE_PAD, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.ROCK, Cell.ROCK, Cell.OBSTACLE, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.ROCK, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-                {Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.TELEPORT, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY, Cell.EMPTY},
-        };
-
         return grid;
     }
 
@@ -69,7 +59,6 @@ public class PrisonSearch {
      */
     private SearchResult search(SearchType searchType, boolean visualize) {
         PrisonState initialState = new PrisonState(genGrid(), 0, 0, null);
-        System.out.println(initialState);
         PrisonCostEvaluator costFunction = new PrisonCostEvaluator();
         PrisonGoalTester goalTester = new PrisonGoalTester();
 
@@ -88,12 +77,12 @@ public class PrisonSearch {
         }
 
         ArrayList<Operator> operators = new ArrayList<>();
+        operators.add(new PrisonOperator(0, -1, costFunction));
         operators.add(new PrisonOperator(1, 0, costFunction));
         operators.add(new PrisonOperator(-1, 0, costFunction));
         operators.add(new PrisonOperator(0, 1, costFunction));
-        operators.add(new PrisonOperator(0, -1, costFunction));
 
-        Search search = new Search(operators, initialState, goalTester, queue, visualize, new PrintWriter(System.out));
+        Search search = new Search(operators, initialState, goalTester, queue, visualize, printer);
         try {
             return search.startSearch();
         } catch (NoSolutionException e) {
@@ -102,16 +91,59 @@ public class PrisonSearch {
     }
 
     public static void main(String[] args) {
-        PrisonSearch ps = new PrisonSearch();
-        SearchResult result = ps.search(SearchType.GR1, false);
-        if(result == null)
-            System.out.println("NO SOLUTION");
-        else {
-            for (State s : result.getPath())
-                System.out.println(s);
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the keyword for the search strategy:");
+        System.out.println("BFS: BF");
+        System.out.println("DFS: DF");
+        System.out.println("Iterative Deepening: ID");
+        System.out.println("Uniform Cost: UC");
+        System.out.println("A* with heuristic 1: AS1");
+        System.out.println("A* with heuristic 2: AS2");
+        System.out.println("Greedy with heuristic 1: GR1");
+        System.out.println("Greedy with heuristic 2: GR2");
 
-            System.out.printf("Total cost: %d\n\n", result.getCost());
-            System.out.printf("Expanded nodes: %d\n\n", result.getExpandedNodes());
+        SearchType searchType;
+        while(true) {
+            try {
+                searchType = SearchType.valueOf(sc.next());
+                break;
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("Unknown search strategy. Try again.");
+                continue;
+            }
         }
+
+        System.out.println("Do you want to visualize expanded nodes? Y/N");
+        boolean visualize;
+        while(true) {
+            String response = sc.next();
+            if(response.equals("Y"))
+                visualize = true;
+            else if(response.equals("N"))
+                visualize = false;
+            else {
+                System.out.println("Invalid response. Try Again (Y/N).");
+                continue;
+            }
+            break;
+        }
+
+        PrisonSearch ps = new PrisonSearch();
+        SearchResult result = ps.search(searchType, visualize);
+
+        if(result == null)
+            printer.println("NO SOLUTION");
+        else {
+            printer.println("---------- PATH ----------");
+            for (State s : result.getPath())
+                printer.println(s);
+
+            printer.printf("Total cost: %d\n\n", result.getCost());
+            printer.printf("Expanded nodes: %d\n\n", result.getExpandedNodes());
+        }
+
+        printer.flush();
+        printer.close();
     }
 }
