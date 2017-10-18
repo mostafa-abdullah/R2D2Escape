@@ -3,6 +3,9 @@ package PrisonSearch;
 import GenericSearch.State;
 
 public class PrisonState extends State {
+    /**
+     * the data structure that represents the search node holding the state of the prison, the cost from the initial state, the level of the node in the search and the parent state
+     */
     Cell[][] grid;
     PrisonState(Cell[][] grid, int cost, int level, PrisonState parent) {
         this.grid = grid;
@@ -11,6 +14,9 @@ public class PrisonState extends State {
         this.parent = parent;
     }
 
+    /**
+     * @return A new state with similar prison state but as a child of this state
+     */
     PrisonState nextState() {
         Cell[][] newGrid = new Cell[grid.length][];
         for(int i = 0; i < grid.length; i++)

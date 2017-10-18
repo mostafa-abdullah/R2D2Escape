@@ -4,6 +4,11 @@ import GenericSearch.GoalTester;
 import GenericSearch.State;
 
 public class PrisonGoalTester extends GoalTester{
+
+    /**
+     * @param state: The state to test against
+     * @return true if the given state is a goal state and false otherwise
+     */
     public boolean test(State state) {
         PrisonState currentState = (PrisonState) state;
         Cell[][] grid = currentState.grid;

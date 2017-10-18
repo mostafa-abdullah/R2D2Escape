@@ -6,14 +6,12 @@ import PrisonSearch.Cell;
 import PrisonSearch.PrisonState;
 
 public class UnmatchedRocksHeuristic extends StateHeuristic {
-    public UnmatchedRocksHeuristic(boolean isGreedy) {
-        super(isGreedy);
-    }
 
-    public UnmatchedRocksHeuristic() {
-        super(false);
-    }
-
+    /**
+     * Calculate the number of rocks not on a pressure pad
+     * @param: The state calculate the heuristic value for
+     * @return: The heuristic value calculated for the given state
+     */
     @Override
     public int calculate(State s) {
         PrisonState state = (PrisonState) s;
@@ -23,6 +21,6 @@ public class UnmatchedRocksHeuristic extends StateHeuristic {
             for(Cell cell: row)
                 if(cell == Cell.ROCK)
                     count++;
-        return this.isGreedy ? count : s.getCost() + count;
+        return count;
     }
 }

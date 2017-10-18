@@ -10,6 +10,9 @@ public enum Cell {
     OBSTACLE,
     ME;
 
+    /**
+     * @return true if the cell can be presented in a goal state and false otherwise
+     */
     boolean isValidEnd() {
         return this == PRESSURE_PAD_ROCK || this == EMPTY || this == TELEPORT || this == OBSTACLE;
     }
