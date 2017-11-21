@@ -55,7 +55,7 @@ public class PrisonSearch {
 
     private static void writeKnowledgeBase() throws FileNotFoundException {
         Cell[][] grid = genGrid();
-        final String path = "/home/mostafa/GUC/Semester 9/AI/Projects/2/src/kb.pl";
+        final String path = "logic/kb.pl";
         PrintWriter writer = new PrintWriter(path);
 
         // print grid dimensions
