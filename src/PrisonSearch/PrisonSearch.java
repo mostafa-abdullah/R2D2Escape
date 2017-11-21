@@ -5,6 +5,8 @@ import PrisonSearch.AStarHeuristics.FarthestRockHeuristic;
 import PrisonSearch.AStarHeuristics.UnmatchedRocksHeuristic;
 import SearchStrategies.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,17 +14,17 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class PrisonSearch {
-    private final int MAX_GRID_LEN = 6;
-    private final int MIN_GRID_LEN = 3;
-    private final int MAX_GRID_WIDTH = 6;
-    private final int MIN_GRID_WIDTH = 3;
+    private static final int MAX_GRID_LEN = 6;
+    private static final int MIN_GRID_LEN = 3;
+    private static final int MAX_GRID_WIDTH = 6;
+    private static final int MIN_GRID_WIDTH = 3;
 
     static PrintWriter printer = new PrintWriter(System.out);
     /**
      * Generates a random initial grid to be used in the search problem
      * @return The randomly created grid
      */
-    private Cell[][] genGrid() {
+    private static Cell[][] genGrid() {
         Random rand = new Random();
         int len = rand.nextInt(MAX_GRID_LEN - MIN_GRID_LEN + 1) + MIN_GRID_LEN;
         int width = rand.nextInt(MAX_GRID_WIDTH - MIN_GRID_WIDTH + 1) + MIN_GRID_LEN;
@@ -49,6 +51,42 @@ public class PrisonSearch {
                 grid[i][j] = allCells.get(i * width + j);
 
         return grid;
+    }
+
+    private static void writeKnowledgeBase() throws FileNotFoundException {
+        Cell[][] grid = genGrid();
+        final String path = "/home/mostafa/GUC/Semester 9/AI/Projects/2/src/kb.pl";
+        PrintWriter writer = new PrintWriter(path);
+
+        // print grid dimensions
+        writer.printf("height(%d).\n", grid.length);
+        writer.printf("width(%d).\n", grid[0].length);
+
+        StringBuilder rocks = new StringBuilder(), obstacles = new StringBuilder(),
+                pads = new StringBuilder(), teleport = new StringBuilder(),
+                me = new StringBuilder();
+
+        for(int i = 0; i < grid.length; i++)
+            for(int j = 0; j < grid[i].length; j++)
+                if(grid[i][j] == Cell.ME)
+                    me.append(String.format("robot(%d, %d, s0).\n", i + 1, j + 1));
+                else if(grid[i][j] == Cell.ROCK)
+                    rocks.append(String.format("rock(%d, %d, s0).\n", i + 1, j + 1));
+                else if(grid[i][j] == Cell.EMPTY_PRESSURE_PAD)
+                    pads.append(String.format("pad(%d, %d).\n", i + 1, j + 1));
+                else if(grid[i][j] == Cell.OBSTACLE)
+                    obstacles.append(String.format("obstacle(%d, %d).\n", i + 1, j + 1));
+                else if(grid[i][j] == Cell.TELEPORT)
+                    teleport.append(String.format("teleport(%d, %d).\n", i + 1, j + 1));
+
+        writer.println(me);
+        writer.println(rocks);
+        writer.println(pads);
+        writer.println(obstacles);
+        writer.println(teleport);
+
+        writer.flush();
+        writer.close();
     }
 
     /**
@@ -90,7 +128,8 @@ public class PrisonSearch {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
+        writeKnowledgeBase();
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter the keyword for the search strategy:");
         System.out.println("BFS: BF");
